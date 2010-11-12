@@ -1,6 +1,39 @@
-Average File Size
+--- ABOUT ---
+AFS - Average File Size
+A simple tool that calculates average size for all files in a given path.
 
-A simple program to walk through dir tree and count the average file
-size.
+Copyright (C) 2010, Vytautas Krakauskas
 
-Usage: afs <path>
+
+--- LICENSE ---
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+--- INSTALLATION  ---
+Call:
+ make
+ make install
+
+By default it installs into /usr/local/bin/
+
+
+--- USAGE ---
+Call:
+ afs /path/to/something
+
+For explanation about aditional options, call:
+ afs -h
+
+
