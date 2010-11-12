@@ -1,0 +1,6 @@
+Average File Size
+
+A simple program to walk through dir tree and count the average file
+size.
+
+Usage: afs <path>
