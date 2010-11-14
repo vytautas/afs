@@ -21,32 +21,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
-#include <string.h>
-#include <ftw.h>
+#include <errno.h>
+#include <fts.h>
 
 #define AFS_VERSION "0.0.1"
 
-static int verbose;
 typedef struct _total
 {
 	off64_t bytes;
 	off64_t files;
 } TOTAL;
-static TOTAL t;
-
-int fn(const char *fpath, const struct stat64 *sb, int typeflag, struct FTW *ftwbuf)
-{
-	// files only
-	if (typeflag == FTW_F)
-	{
-		if (verbose)
-			printf("%10llu %s\n", sb->st_size, fpath);
-		t.bytes+=sb->st_size;
-		t.files++;
-	}
-	return 0;
-}
 
 void print_usage(const char *script)
 {
@@ -55,8 +43,13 @@ void print_usage(const char *script)
 
 int main(int argc, char **argv)
 {
-	char *path;
+	char **path;
 	int opt;
+	FTS *ftsd;
+	FTSENT *ent;
+	struct stat64 s;
+	char verbose=0;
+	TOTAL t;
 	
 	// handle arguments
 	while ((opt = getopt(argc, argv, "+hvV")) != -1)
@@ -81,22 +74,43 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	else
-		path=argv[optind];
+	{
+		path=(char **) malloc(sizeof(char *));
+		path[0]=argv[optind];
+	}
 
 	if (verbose)
 		printf("\nSize       File name\n");
 
 	// start traversing
-	if (nftw64(path, &fn, 1, FTW_PHYS) == -1)
+	t.files=t.bytes=0;
+	ftsd = fts_open(path, FTS_PHYSICAL|FTS_NOSTAT, NULL);
+	while ((ent = fts_read(ftsd)) != NULL)
+		if (ent->fts_info == FTS_NSOK)
+			if (lstat64(ent->fts_path, &s) == 0)
+			{
+				if (S_ISREG(s.st_mode))
+				{
+					if (verbose)
+						printf("%10llu %s\n", s.st_size, ent->fts_path);
+					t.bytes+=s.st_size;
+					t.files++;
+				}
+			}
+			else
+				perror(ent->fts_path);
+	fts_close(ftsd);
+	if (errno != 0)
 	{
-		perror(path);
+		perror("");
 		return 1;
 	}
-	
+
 	// results
-	printf("\nPath: %s\n", path);
+	printf("\nPath: %s\n", path[0]);
 	printf("Total: %llu bytes, %llu files.\n", t.bytes, t.files);
 	printf("Average: %llu\n", (t.bytes/t.files));
+	free(path);
 
 	return 0;
 }
