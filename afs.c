@@ -109,7 +109,8 @@ int main(int argc, char **argv)
 	// results
 	printf("\nPath: %s\n", path[0]);
 	printf("Total: %llu bytes, %llu files.\n", t.bytes, t.files);
-	printf("Average: %llu\n", (t.bytes/t.files));
+	if (t.files>0)
+		printf("Average: %llu\n", (t.bytes/t.files));
 	free(path);
 
 	return 0;
