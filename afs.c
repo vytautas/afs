@@ -28,11 +28,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define AFS_VERSION "0.0.1"
 
 static int verbose;
-static struct total
+typedef struct _total
 {
-	off64_t size;
-	off_t files;
-} t;
+	off64_t bytes;
+	off64_t files;
+} TOTAL;
+static TOTAL t;
 
 int fn(const char *fpath, const struct stat64 *sb, int typeflag, struct FTW *ftwbuf)
 {
@@ -41,7 +42,7 @@ int fn(const char *fpath, const struct stat64 *sb, int typeflag, struct FTW *ftw
 	{
 		if (verbose)
 			printf("%10llu %s\n", sb->st_size, fpath);
-		t.size+=sb->st_size;
+		t.bytes+=sb->st_size;
 		t.files++;
 	}
 	return 0;
@@ -94,8 +95,8 @@ int main(int argc, char **argv)
 	
 	// results
 	printf("\nPath: %s\n", path);
-	printf("Total: %llu bytes, %lu files.\n", t.size, t.files);
-	printf("Average: %llu\n", (t.size/t.files));
+	printf("Total: %llu bytes, %llu files.\n", t.bytes, t.files);
+	printf("Average: %llu\n", (t.bytes/t.files));
 
 	return 0;
 }
