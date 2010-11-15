@@ -45,11 +45,7 @@ int main(int argc, char **argv)
 {
 	char **path;
 	int opt;
-	FTS *ftsd;
-	FTSENT *ent;
-	struct stat64 s;
 	char verbose=0;
-	TOTAL t;
 	
 	// handle arguments
 	while ((opt = getopt(argc, argv, "+hvV")) != -1)
@@ -83,6 +79,11 @@ int main(int argc, char **argv)
 		printf("\nSize       File name\n");
 
 	// start traversing
+	FTS *ftsd;
+	FTSENT *ent;
+	struct stat64 s;
+	TOTAL t;
+
 	t.files=t.bytes=0;
 	ftsd = fts_open(path, FTS_PHYSICAL|FTS_NOSTAT|FTS_NOCHDIR, NULL);
 	if (errno != 0)
