@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <fts.h>
 #include <math.h>
 
-#define AFS_VERSION "0.0.2"
+#define AFS_VERSION "0.0.3"
 
 //base 10 exponents for 64bits is [0-19]. Additional possition is for empty files
 #define DISTR_SIZE 21
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
 		printf("File size distribution:\n");
 		int i;
 		for (i=mm.min; i<=mm.max; i++)
-			printf("%10s: %2.1f%% (%llu files)\n", units[i], (float) (distr[i]*100)/t.files, distr[i]);
+			printf("%10s: %03.1f%% (%llu files)\n", units[i], (float) (distr[i]*100)/t.files, distr[i]);
 	}
 	return 0;
 }
