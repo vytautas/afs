@@ -85,6 +85,11 @@ int main(int argc, char **argv)
 	// start traversing
 	t.files=t.bytes=0;
 	ftsd = fts_open(path, FTS_PHYSICAL|FTS_NOSTAT|FTS_NOCHDIR, NULL);
+	if (errno != 0)
+	{
+		perror("");
+		return 1;
+	}
 	while ((ent = fts_read(ftsd)) != NULL)
 		if (ent->fts_info == FTS_NSOK)
 			if (lstat64(ent->fts_path, &s) == 0)
@@ -99,12 +104,12 @@ int main(int argc, char **argv)
 			}
 			else
 				perror(ent->fts_path);
-	fts_close(ftsd);
 	if (errno != 0)
 	{
 		perror("");
 		return 1;
 	}
+	if (fts_close(ftsd) != 0) perror("FTS_CLOSE");
 
 	// results
 	printf("\nPath: %s\n", path[0]);
