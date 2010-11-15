@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 
 	// start traversing
 	t.files=t.bytes=0;
-	ftsd = fts_open(path, FTS_PHYSICAL|FTS_NOSTAT, NULL);
+	ftsd = fts_open(path, FTS_PHYSICAL|FTS_NOSTAT|FTS_NOCHDIR, NULL);
 	while ((ent = fts_read(ftsd)) != NULL)
 		if (ent->fts_info == FTS_NSOK)
 			if (lstat64(ent->fts_path, &s) == 0)
