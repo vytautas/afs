@@ -21,6 +21,7 @@ INSTALL_DIR=/usr/local/bin
 
 CC = gcc
 CFLAGS = -O2
+LIBS = -lm
 
 .PHONY: all
 all: afs
@@ -34,4 +35,4 @@ clean:
 	rm -fv afs
 
 afs: afs.c
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) $(LIBS) -o $@ $<

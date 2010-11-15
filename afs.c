@@ -22,13 +22,31 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
 #include <fts.h>
+#include <math.h>
 
 #define AFS_VERSION "0.0.2"
+
+//base 10 exponents for 64bits is [0-19]. Additional possition is for empty files
+#define DISTR_SIZE 21
+const char units[DISTR_SIZE][11]={"empty",
+"1-9  B", "10-99  B", "100-999  B",
+"1-9 KB", "10-99 KB", "100-999 KB",
+"1-9 MB", "10-99 MB", "100-999 MB",
+"1-9 GB", "10-99 GB", "100-999 GB",
+"1-9 TB", "10-99 TB", "100-999 TB",
+"1-9 PB", "10-99 PB", "100-999 PB",
+"1-9 EB", "10-99 EB"};
+
+typedef struct _minmax
+{
+	char min, max;
+} MINMAX;
 
 typedef struct _total
 {
@@ -38,7 +56,7 @@ typedef struct _total
 
 void print_usage(const char *script)
 {
-	fprintf(stderr, "Usage: %s [-hvV] <dir>\n", script);
+	fprintf(stderr, "Usage: %s [-hvdV] <dir>\n", script);
 }
 
 int main(int argc, char **argv)
@@ -46,13 +64,17 @@ int main(int argc, char **argv)
 	char **path;
 	int opt;
 	char verbose=0;
+	char distrib=0;
 	
 	// handle arguments
-	while ((opt = getopt(argc, argv, "+hvV")) != -1)
+	while ((opt = getopt(argc, argv, "+hvdV")) != -1)
 		switch (opt)
 		{
 			case 'v':
 				verbose=1;
+				break;
+			case 'd':
+				distrib=1;
 				break;
 			case 'h':
 				print_usage(argv[0]);
@@ -83,7 +105,13 @@ int main(int argc, char **argv)
 	FTSENT *ent;
 	struct stat64 s;
 	TOTAL t;
+	off64_t distr[DISTR_SIZE];
+	char idx;
+	MINMAX mm;
 
+	mm.min=DISTR_SIZE;
+	mm.max=0;
+	bzero(&distr, sizeof(distr));
 	t.files=t.bytes=0;
 	ftsd = fts_open(path, FTS_PHYSICAL|FTS_NOSTAT|FTS_NOCHDIR, NULL);
 	if (errno != 0)
@@ -101,6 +129,18 @@ int main(int argc, char **argv)
 						printf("%10llu %s\n", s.st_size, ent->fts_path);
 					t.bytes+=s.st_size;
 					t.files++;
+
+					//File size distribution
+					if (distrib)
+					{
+						if (s.st_size > 0)
+							idx=log10l(s.st_size)+1;
+						else
+							idx=0;
+						distr[idx]++;
+						if (mm.max < idx) mm.max=idx;
+						if (mm.min > idx) mm.min=idx;
+					}
 				}
 			}
 			else
@@ -119,5 +159,12 @@ int main(int argc, char **argv)
 		printf("Average: %llu\n", (t.bytes/t.files));
 	free(path);
 
+	if (distrib)
+	{
+		printf("File size distribution:\n");
+		int i;
+		for (i=mm.min; i<=mm.max; i++)
+			printf("%10s: %2.1f%% (%llu files)\n", units[i], (float) (distr[i]*100)/t.files, distr[i]);
+	}
 	return 0;
 }
