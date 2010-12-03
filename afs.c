@@ -93,8 +93,9 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		path=(char **) malloc(sizeof(char *));
+		path=(char **) malloc(sizeof(char *)*2);
 		path[0]=argv[optind];
+		path[1]=NULL;
 	}
 
 	if (verbose)
