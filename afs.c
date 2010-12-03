@@ -164,7 +164,7 @@ int main(int argc, char **argv)
 		printf("File size distribution:\n");
 		int i;
 		for (i=mm.min; i<=mm.max; i++)
-			printf("%10s: %03.1f%% (%llu files)\n", units[i], (float) (distr[i]*100)/t.files, distr[i]);
+			printf("%10s: %4.1f%% (%llu files)\n", units[i], (float) (distr[i]*100)/t.files, distr[i]);
 	}
 	return 0;
 }
